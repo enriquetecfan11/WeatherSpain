@@ -83,10 +83,40 @@ async function readExcel() {
 
 
 
-// Create a multithreding system to run all
-async function run() {
-  await separateExcel();
-  await readExcel();
+// Remove data from generted and data
+function removeData() {
+  fs.rmdirSync('data', { recursive: true });
+  fs.rmdirSync('generated', { recursive: true });
 }
 
-run();
+
+// Create a multithreding system to run all
+function run() {
+  separateExcel();
+  readExcel();
+}
+
+function remove() {
+  removeData();
+}
+
+// Create a funtion for user choose between run or remove
+function choose() {
+  const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  readline.question(`Choose between run or remove: `, (name) => {
+    if (name === '1') {
+      run();
+    } else if (name === '2') {
+      remove();
+    } else {
+      console.log('Please choose between run or remove');
+    }
+    readline.close();
+  });
+}
+
+choose();
