@@ -13,4 +13,4 @@ logs/
 # ignorar data.json and data.csv
 data.json
 data.csv
-
+temperature.txt
