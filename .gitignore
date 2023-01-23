@@ -4,6 +4,9 @@ node_modules/
 # Ignorar datos
 data/
 
+# Ignorar generated
+generated/
+
 # Ignorar archivos de configuración
 config.json
 

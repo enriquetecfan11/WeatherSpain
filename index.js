@@ -3,6 +3,8 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const request = require('request');
 const fs = require('fs');
+const json2csv = require('json2csv').parse;
+
 
 
 // Read Town_index.csv
@@ -26,6 +28,11 @@ if (!fs.existsSync('data')) {
   fs.mkdirSync('data');
 }
 
+if (!fs.existsSync('generated')) {
+  fs.mkdirSync('generated');
+}
+
+
 function separateExcel() {
   for (let i = 0; i < dataLength; i += 100) {
     const dataSlice = data.slice(i, i + 100);
@@ -33,17 +40,22 @@ function separateExcel() {
     const newWorkSheet = xlsx.utils.json_to_sheet(dataSlice);
     xlsx.utils.book_append_sheet(newWorkBook, newWorkSheet, 'Sheet 1');
     xlsx.writeFile(newWorkBook, `data/excel-${i}.xlsx`);
+    console.log(
+      `Excel file ${i} has been created with ${dataSlice.length} rows`
+    )
   }
 }
 
 
-if (!fs.existsSync('data.json')) {
-  fs.writeFileSync('data.json', '')
+let counter = 0;
+
+function generateId() {
+  return counter++;
 }
 
-// first reads an excel, waits 2 minutes and reads the next excel and extracts the data from const temp = $('.c-tib-text').text(); const title = $('.-itl').text();
 
-async function readExcel() {
+
+function readExcel() {
   for (let i = 0; i < dataLength; i += 100) {
     const workbook = xlsx.readFile(`data/excel-${i}.xlsx`);
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -54,53 +66,58 @@ async function readExcel() {
       const url = data[j].url;
       request(url, (error, response, html) => {
         if (!error && response.statusCode == 200) {
+          const id = generateId()
+          const date = new Date();
+          const today = date.toLocaleDateString();
+          const timestamp = date.getTime();
+
           const $ = cheerio.load(html);
           const temp = $('.c-tib-text').text();
           const title = $('.-itl').text();
           const titleTrim = title.trim();
-          const date = new Date();
-          const today = date.toLocaleDateString();
-          const timestamp = date.getTime();
-          fs.appendFile('data.json', `
-          {
-            "timestamp": "${timestamp}"
-            "title": "${titleTrim}",
-            "temp": "${temp}",
-            "url": "${url}",
-          },
-          `, (err) => {
+
+          const data = {
+            id,
+            timestamp,
+            today,
+            title: titleTrim,
+            temp,
+            url,
+          };
+
+          const filename = date.toLocaleDateString().replace(/\//g, "-");
+          const dataJson = JSON.stringify(data);
+
+          fs.appendFile(`generated/${filename}.json`, dataJson + '\n', (err) => {
             if (err) throw err;
-            if (i === dataLength - 1 && j === dataLength - 1) {
-              console.log('Data saved!');
+            console.log('The data has been appended to file!');
+            console.log("ID: " + id);
+            if (id >= 1892) {
+              console.log("The program has finished!")
+              process.exit();
             }
           });
         }
       });
     }
   }
-  await new Promise((resolve) => setTimeout(resolve, 120000));
 }
 
 
-
-// Remove data from generted and data
 function removeData() {
+  console.log("Removing the data folder...")
   fs.rmdirSync('data', { recursive: true });
   fs.rmdirSync('generated', { recursive: true });
 }
 
 
-// Create a multithreding system to run all
 function run() {
+  console.log("Running the program...")
   separateExcel();
   readExcel();
 }
 
-function remove() {
-  removeData();
-}
 
-// Create a funtion for user choose between run or remove
 function choose() {
   const readline = require('readline').createInterface({
     input: process.stdin,
@@ -111,9 +128,9 @@ function choose() {
     if (name === '1') {
       run();
     } else if (name === '2') {
-      remove();
+      removeData();
     } else {
-      console.log('Please choose between run or remove');
+      console.log('Please choose between run or remove (1 for run, 2 for remove):');
     }
     readline.close();
   });
