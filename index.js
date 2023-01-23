@@ -37,7 +37,13 @@ function separateExcel() {
 }
 
 
-function readExcel() {
+if (!fs.existsSync('data.json')) {
+  fs.writeFileSync('data.json', '')
+}
+
+// first reads an excel, waits 2 minutes and reads the next excel and extracts the data from const temp = $('.c-tib-text').text(); const title = $('.-itl').text();
+
+async function readExcel() {
   for (let i = 0; i < dataLength; i += 100) {
     const workbook = xlsx.readFile(`data/excel-${i}.xlsx`);
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -72,7 +78,10 @@ function readExcel() {
       });
     }
   }
+  await new Promise((resolve) => setTimeout(resolve, 120000));
 }
+
+
 
 // Create a multithreding system to run all
 async function run() {
