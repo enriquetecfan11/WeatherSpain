@@ -1,0 +1,16 @@
+# Ignorar archivos de node_modules
+node_modules/
+
+# Ignorar datos
+data/
+
+# Ignorar archivos de configuración
+config.json
+
+# Ignorar archivos de logs
+logs/
+
+# ignorar data.json and data.csv
+data.json
+data.csv
+
