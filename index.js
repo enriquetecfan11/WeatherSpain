@@ -119,4 +119,5 @@ function programRun() {
 }
 
 programRun();
+removeData();
 
