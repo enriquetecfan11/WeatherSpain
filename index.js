@@ -104,6 +104,7 @@ function readExcel() {
 }
 
 
+
 function removeData() {
   console.log("Removing the data folder...")
   fs.rmdirSync('data', { recursive: true });
@@ -111,29 +112,11 @@ function removeData() {
 }
 
 
-function run() {
+function programRun() {
   console.log("Running the program...")
   separateExcel();
   readExcel();
 }
 
+programRun();
 
-function choose() {
-  const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  readline.question(`Choose between run or remove: `, (name) => {
-    if (name === '1') {
-      run();
-    } else if (name === '2') {
-      removeData();
-    } else {
-      console.log('Please choose between run or remove (1 for run, 2 for remove):');
-    }
-    readline.close();
-  });
-}
-
-choose();
