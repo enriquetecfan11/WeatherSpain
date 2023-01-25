@@ -14,15 +14,10 @@ if (!fs.existsSync('data')) {
   fs.mkdirSync('data');
 }
 
-if (!fs.existsSync('generated')) {
-  fs.mkdirSync('generated');
-}
-
 
 function removeData() {
   console.log("Removing the data folder...")
   fs.rmdirSync('data', { recursive: true });
-  fs.rmdirSync('generated', { recursive: true });
 }
 
 
@@ -32,5 +27,5 @@ function programRun() {
   readExcel();
 }
 
-//programRun();
-removeData();
+programRun();
+// removeData();

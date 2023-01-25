@@ -50,10 +50,17 @@ function readExcel() {
             url,
           };
 
-          const filename = date.toLocaleDateString().replace(/\//g, "-");
+          const day = date.getDate().toString().padStart(2, '0');
+          const filename = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + day;
+
+
+          //replace : to - in filename
+          // const filenameTrim = filename.replace(/:/g, "-");
+          // const filenameTrim2 = filenameTrim.replace(/ /g, "-");
+
           const dataJson = JSON.stringify(data);
 
-          fs.appendFile(`generated/${filename}.json`, dataJson + '\n', (err) => {
+          fs.appendFile(`generatedData/${filename}.json`, dataJson + '\n', (err) => {
             if (err) throw err;
             console.log('The data has been appended to file!');
             console.log("ID: " + id);
