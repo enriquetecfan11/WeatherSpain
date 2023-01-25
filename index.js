@@ -5,6 +5,12 @@ const request = require('request');
 const fs = require('fs');
 const json2csv = require('json2csv').parse;
 
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+
+const app = express();
+
 const readExcel = require('./functions/readExcel');
 const separateExcel = require('./functions/separateExcel');
 
@@ -14,18 +20,39 @@ if (!fs.existsSync('data')) {
   fs.mkdirSync('data');
 }
 
+// Express Options
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(morgan('tiny'));
 
-function removeData() {
-  console.log("Removing the data folder...")
-  fs.rmdirSync('data', { recursive: true });
-}
+// Express Routes
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
 
-
-function programRun() {
-  console.log("Running the program...")
+app.get('/separate', (req, res) => {
   separateExcel();
-  readExcel();
-}
+  res.send("Excel file is separated...");
+})
 
-programRun();
-// removeData();
+
+app.get('/read', (req, res) => {
+  readExcel();
+  res.send("Program is running...");
+})
+
+
+app.get('/remove', (req, res) => {
+  fs.rmdirSync('data', { recursive: true });
+  res.send("Data folder is removed...");
+})
+
+// Start server
+var port = process.env.PORT || 4000;
+
+app.listen(port, () => {
+  console.log(`🚀 Server started on port ${port}`);
+}).on('error', err => {
+  console.log(err);
+});
